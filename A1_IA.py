@@ -68,16 +68,16 @@ categorias_com_alta = (variacao_mensal_pct > 0.3).apply(lambda row: row[row > 0.
 
 # Valores totais
 total_recebido = df[
-    (df['Tipo'] == 'Receita') & (df['Status'] == 'RECEBIDO')
+    (df['Tipo'] == 'Receita') & (df['Column1.cabecTitulo.cStatus'] == 'RECEBIDO')
 ]['Total_omie'].sum()
 total_pago = df[
-    (df['Tipo'] == 'Despesa') & (df['Status'] == 'PAGO')
+    (df['Tipo'] == 'Despesa') & (df['Column1.cabecTitulo.cStatus'] == 'PAGO')
 ]['Total_omie'].sum()
 total_pendente_despesa = df[
-    (df['Tipo'] == 'Despesa') & (df['Status'] == 'ATRASADO')
+    (df['Tipo'] == 'Despesa') & (df['Column1.cabecTitulo.cStatus'] == 'ATRASADO')
 ]['Total_omie'].sum()
 total_pendente_receita = df[
-    (df['Tipo'] == 'Receita') & (df['Status'] == 'ATRASADO')
+    (df['Tipo'] == 'Receita') & (df['Column1.cabecTitulo.cStatus'] == 'ATRASADO')
 ]['Total_omie'].sum()
 saldo_liquido = total_recebido - total_pago
 top_categorias = df['Categorias.Column1.descricao_padrao'].value_counts().head(3).to_dict()
@@ -117,7 +117,7 @@ rentabilidade['lucro'] = rentabilidade['Total_omie_receita'] - rentabilidade['To
 rentabilidade['margem_lucro'] = rentabilidade['lucro'] / rentabilidade['Total_omie_receita'].replace(0, pd.NA)
 
 # Pendências e vencidos
-df_pendentes = df[(df['unpaid'] > 0) & (df['dueDate'] <= hoje) & (df['status'] == 'OVERDUE')]
+df_pendentes = df[(df['unpaid'] > 0) & (df['dueDate'] <= hoje) & (df['Column1.cabecTitulo.cStatus'] == 'OVERDUE')]
 pendentes_por_Tipo = df_pendentes.groupby('Tipo')['unpaid'].sum().to_dict()
 
 # Inadimplência
