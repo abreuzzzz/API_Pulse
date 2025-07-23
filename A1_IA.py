@@ -58,8 +58,8 @@ df['Trimestre'] = df['Column1.cabecTitulo.dDtPagamento'].dt.to_period('Q')
 df['AnoMes_Caixa'] = df['Column1.cabecTitulo.dDtPagamento'].dt.to_period('M')
 df['Trimestre_Caixa'] = df['Column1.cabecTitulo.dDtPagamento'].dt.to_period('Q')
 
-# Resumo trimestral: valores pagos e pendentes por tipo
-resumo_trimestral = df.groupby(['Trimestre', 'tipo'])[['Total_omie', 'unpaid']].sum().unstack(fill_value=0)
+# Resumo trimestral: valores pagos e pendentes por Tipo
+resumo_trimestral = df.groupby(['Trimestre', 'Tipo'])[['Total_omie', 'unpaid']].sum().unstack(fill_value=0)
 
 # Variação mensal por categoria
 resumo_mensal_categoria = df.groupby(['AnoMes', 'Categorias.Column1.descricao_padrao'])['Total_omie'].sum().unstack(fill_value=0)
@@ -89,7 +89,7 @@ hoje = pd.to_datetime(datetime.today().date())
 df_realizadas = df[df['Column1.cabecTitulo.dDtPagamento'] <= hoje].copy()
 
 df_realizadas['valor_ajustado'] = df_realizadas.apply(
-    lambda row: abs(row['Total_omie']) if row['tipo'] == 'Receita' else -abs(row['Total_omie']),
+    lambda row: abs(row['Total_omie']) if row['Tipo'] == 'Receita' else -abs(row['Total_omie']),
     axis=1
 )
 
@@ -98,8 +98,8 @@ fluxo_caixa = df_realizadas.groupby('AnoMes_Caixa')['valor_ajustado'].sum().rese
 fluxo_caixa['saldo_acumulado'] = fluxo_caixa['valor_ajustado'].cumsum()
 
 # Receitas e despesas por mês
-df_receitas = df_realizadas[df_realizadas['tipo'].str.lower() == 'Receita']
-df_despesas = df_realizadas[df_realizadas['tipo'].str.lower() == 'Despesa']
+df_receitas = df_realizadas[df_realizadas['Tipo'].str.lower() == 'Receita']
+df_despesas = df_realizadas[df_realizadas['Tipo'].str.lower() == 'Despesa']
 
 receitas_mensais = df_receitas.groupby('AnoMes')['Total_omie'].sum().reset_index()
 despesas_mensais = df_despesas.groupby('AnoMes')['Total_omie'].sum().reset_index()
@@ -118,10 +118,10 @@ rentabilidade['margem_lucro'] = rentabilidade['lucro'] / rentabilidade['Total_om
 
 # Pendências e vencidos
 df_pendentes = df[(df['unpaid'] > 0) & (df['dueDate'] <= hoje) & (df['status'] == 'OVERDUE')]
-pendentes_por_tipo = df_pendentes.groupby('tipo')['unpaid'].sum().to_dict()
+pendentes_por_Tipo = df_pendentes.groupby('Tipo')['unpaid'].sum().to_dict()
 
 # Inadimplência
-total_vencido = df_pendentes[df_pendentes['tipo'] == 'Receita']['Total_omie'].sum()
+total_vencido = df_pendentes[df_pendentes['Tipo'] == 'Receita']['Total_omie'].sum()
 inadimplencia = total_vencido / total_recebido if total_recebido else 0
 
 # Prompt detalhado
@@ -137,7 +137,7 @@ Você é um analista financeiro sênior. Recebi um extrato financeiro com as seg
 
 2. Top 3 categorias mais frequentes: {top_categorias}
 
-3. Resumo trimestral (valores pagos e pendentes por tipo de transação):
+3. Resumo trimestral (valores pagos e pendentes por Tipo de transação):
 {resumo_trimestral.to_string()}
 
 4. Categorias com aumentos mensais significativos (acima de 30% de um mês para o outro):
@@ -149,8 +149,8 @@ Você é um analista financeiro sênior. Recebi um extrato financeiro com as seg
 6. Rentabilidade mensal (lucro e margem de lucro):
 {rentabilidade[['AnoMes', 'lucro', 'margem_lucro']].to_string(index=False)}
 
-7. Pendências vencidas por tipo:
-{pendentes_por_tipo}
+7. Pendências vencidas por Tipo:
+{pendentes_por_Tipo}
 
 8. Inadimplência (proporção de valores vencidos sobre receitas realizadas): {inadimplencia:.2%}
 
