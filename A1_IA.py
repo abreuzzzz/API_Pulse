@@ -117,7 +117,7 @@ rentabilidade['lucro'] = rentabilidade['Total_omie_receita'] - rentabilidade['To
 rentabilidade['margem_lucro'] = rentabilidade['lucro'] / rentabilidade['Total_omie_receita'].replace(0, pd.NA)
 
 # Pendências e vencidos
-df_pendentes = df[(df['unpaid'] > 0) & (df['dueDate'] <= hoje) & (df['Column1.cabecTitulo.cStatus'] == 'OVERDUE')]
+df_pendentes = df[(df['unpaid'] > 0) & (df['Column1.cabecTitulo.dDtVenc'] <= hoje) & (df['Column1.cabecTitulo.cStatus'] == 'OVERDUE')]
 pendentes_por_Tipo = df_pendentes.groupby('Tipo')['unpaid'].sum().to_dict()
 
 # Inadimplência
