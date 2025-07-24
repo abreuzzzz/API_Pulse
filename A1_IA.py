@@ -34,6 +34,7 @@ def limpar_valores(col):
 df['unpaid'] = limpar_valores(df['unpaid'])
 df['paid'] = limpar_valores(df['paid'])
 df['Categorias.Column1.descricao_padrao'] = limpar_valores(df['Categorias.Column1.descricao_padrao'])
+df['Total_omie'] = limpar_valores(df['Total_omie'])
 
 # FUNÇÃO MODIFICADA: Converter coluna de data para formato DD/MM/AAAA
 def parse_data_segura(coluna):
