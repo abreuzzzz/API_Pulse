@@ -8,8 +8,10 @@ from gspread_dataframe import set_with_dataframe
 from oauth2client.service_account import ServiceAccountCredentials
 from google.oauth2.service_account import Credentials
 
-# Configurar sua API Key do OpenAI
-client = OpenAI(api_key="sk-0ac91b811ec149b48546f44fcf1ba9b5", base_url="https://api.deepseek.com")
+# Configurar sua API Key do DeepSeek
+deepseek_api_key = os.getenv("DEEPSEEK_API_KEY")
+client = OpenAI(api_key=deepseek_api_key, base_url="https://api.deepseek.com")
+
 
 # URL da planilha Google Sheets exportada como CSV
 sheet_id = "1VaYOecnTXD670SRVSCwAAmk1Bm0BTtbFZOBgTemPCAs"
