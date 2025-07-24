@@ -12,7 +12,6 @@ from google.oauth2.service_account import Credentials
 deepseek_api_key = os.getenv("DEEPSEEK_API_KEY")
 client = OpenAI(api_key=deepseek_api_key, base_url="https://api.deepseek.com")
 
-
 # URL da planilha Google Sheets exportada como CSV
 sheet_id = "1VaYOecnTXD670SRVSCwAAmk1Bm0BTtbFZOBgTemPCAs"
 sheet_csv_url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/export?format=csv"
@@ -36,23 +35,20 @@ df['unpaid'] = limpar_valores(df['unpaid'])
 df['paid'] = limpar_valores(df['paid'])
 df['Categorias.Column1.descricao_padrao'] = limpar_valores(df['Categorias.Column1.descricao_padrao'])
 
-# Converter coluna de data
-# Conversão de datas com parsing manual para evitar problemas de formatação
+# FUNÇÃO MODIFICADA: Converter coluna de data para formato DD/MM/AAAA
 def parse_data_segura(coluna):
-    datas = pd.to_datetime(
-        coluna.apply(lambda x: '-'.join(x.split('-')[:3]) if isinstance(x, str) and '-' in x else None),
-        format='%Y-%m-%d',
-        errors='coerce'
-    )
-    return datas
+    """
+    Converte datas no formato DD/MM/AAAA (ex: 22/05/2025) para datetime
+    """
+    return pd.to_datetime(coluna, format='%d/%m/%Y', errors='coerce')
 
+# Aplicar a conversão de datas
 df['Column1.cabecTitulo.dDtPagamento'] = parse_data_segura(df['Column1.cabecTitulo.dDtPagamento'])
 df['Column1.cabecTitulo.dDtVenc'] = parse_data_segura(df['Column1.cabecTitulo.dDtVenc'])
 
 # Filtrar apenas registros do ano corrente
 ano_corrente = datetime.today().year
 df = df[df['Column1.cabecTitulo.dDtPagamento'].dt.year == ano_corrente]
-
 
 # Criar colunas auxiliares
 df['AnoMes'] = df['Column1.cabecTitulo.dDtPagamento'].dt.to_period('M')
@@ -100,8 +96,8 @@ fluxo_caixa = df_realizadas.groupby('AnoMes_Caixa')['valor_ajustado'].sum().rese
 fluxo_caixa['saldo_acumulado'] = fluxo_caixa['valor_ajustado'].cumsum()
 
 # Receitas e despesas por mês
-df_receitas = df_realizadas[df_realizadas['Tipo'].str.lower() == 'Receita']
-df_despesas = df_realizadas[df_realizadas['Tipo'].str.lower() == 'Despesa']
+df_receitas = df_realizadas[df_realizadas['Tipo'].str.lower() == 'receita']
+df_despesas = df_realizadas[df_realizadas['Tipo'].str.lower() == 'despesa']
 
 receitas_mensais = df_receitas.groupby('AnoMes')['Total_omie'].sum().reset_index()
 despesas_mensais = df_despesas.groupby('AnoMes')['Total_omie'].sum().reset_index()
@@ -176,10 +172,6 @@ response = client.chat.completions.create(
     ],
     temperature=1.0
 )
-
-# Mostrar insights
-#print("=== INSIGHTS GERADOS ===")
-#print(response.choices[0].message.content)
 
 # Credenciais do serviço
 json_secret = os.getenv("GDRIVE_SERVICE_ACCOUNT")
